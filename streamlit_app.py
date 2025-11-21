@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 
-st.title('🎈 App Name')
+st.title('🎈 Hello ;)')
 
-st.write('Hello world!')
+st.write('Let's do it')
 
 with st.expander("DATA"):
   st.write('**OUR DATA**')
