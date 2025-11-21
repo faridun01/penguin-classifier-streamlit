@@ -3,7 +3,7 @@ import pandas as pd
 
 st.title('🎈 Hello ;)')
 
-st.write('Let's do it')
+st.write('Let\'s do it')
 
 with st.expander("DATA"):
   st.write('**OUR DATA**')
