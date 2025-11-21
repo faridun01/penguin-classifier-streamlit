@@ -10,3 +10,6 @@ with st.expander("DATA"):
   df = pd.read_csv('https://raw.githubusercontent.com/dataprofessor/data/master/penguins_cleaned.csv')
   df
 
+with st.expander("Visualization"):
+    st.scatter_chart(data=df, x='bill_length_mm', y='body_mass_g', color='species')
+
