@@ -16,4 +16,15 @@ with st.expander("Visualization"):
 with st.sidebar:
   st.header('Inout features: ')
   island = st.selectbox('Island', ('Torgersen', 'Dream', 'Biscoe'))
-  bill_length_mm = st.sidebar("bill_length_mm", 32.1, 59.6, 35.65)
+  with st.sidebar:
+    st.header('Input features:')
+
+    island = st.selectbox('Island', ('Torgersen', 'Dream', 'Biscoe'))
+
+    bill_length_mm = st.slider(
+        "bill_length_mm",
+        min_value=32.1,
+        max_value=59.6,
+        value=35.65
+    )
+
