@@ -5,16 +5,20 @@ import altair as alt
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 
 # PAGE CONFIG
 st.set_page_config(page_title="Penguins Classifier", page_icon="🐧", layout="wide")
 
 st.title("🐧 Penguins Classifier")
-st.write("Predict penguin species using 4 numeric features.")
+st.write("Predict penguin species using numeric and categorical features.")
 
 
-# LOAD DATA 
+# LOAD DATA
 @st.cache_data
 def load_data():
     df = pd.read_csv(
@@ -29,29 +33,62 @@ df = load_data()
 # TRAIN MODELS
 @st.cache_resource
 def train_models(df):
-    feature_cols = [
+    # feature sets
+    numeric_cols = [
         "bill_length_mm",
         "bill_depth_mm",
         "flipper_length_mm",
         "body_mass_g",
     ]
+    categorical_cols = ["island", "sex"]
     target_col = "species"
 
-    X = df[feature_cols]
+    X = df[numeric_cols + categorical_cols]
     y = df[target_col]
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
+    # preprocessing: numeric passthrough, categorical one-hot
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", "passthrough", numeric_cols),
+            ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_cols),
+        ]
     )
 
-    # Models
-    knn = KNeighborsClassifier(n_neighbors=5)
-    dt = DecisionTreeClassifier(max_depth=5, random_state=42)
+    # pipelines = preprocessing + model
+    knn = Pipeline(
+        steps=[
+            ("preprocess", preprocessor),
+            ("model", KNeighborsClassifier(n_neighbors=5)),
+        ]
+    )
+
+    dt = Pipeline(
+        steps=[
+            ("preprocess", preprocessor),
+            ("model", DecisionTreeClassifier(max_depth=5, random_state=42)),
+        ]
+    )
+
+    rf = Pipeline(
+        steps=[
+            ("preprocess", preprocessor),
+            ("model", RandomForestClassifier(
+                n_estimators=100,
+                random_state=42,
+            )),
+        ]
+    )
 
     models = {
         "KNN": knn,
         "Decision Tree": dt,
+        "Random Forest": rf,
     }
+
+    # train / test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y
+    )
 
     metrics = []
     trained_models = {}
@@ -78,7 +115,7 @@ def train_models(df):
 
 models, metrics_df, best_model_name, y_test, preds_dict, class_names = train_models(df)
 
-# TABS 
+# TABS
 tab_data, tab_viz, tab_models, tab_pred = st.tabs(
     ["📘 Data", "📊 Visualization", "🤖 Models", "🔮 Prediction"]
 )
@@ -186,6 +223,8 @@ with tab_models:
         index=list(models.keys()).index(best_model_name),
     )
 
+    # we need the same X_test that was used above; easiest is to recompute locally
+    # but here we only stored predictions; confusion_matrix still works with y_test and y_pred_cm
     y_pred_cm = preds_dict[cm_model_name]
     cm = confusion_matrix(y_test, y_pred_cm, labels=class_names)
 
@@ -203,6 +242,7 @@ with tab_models:
 with tab_pred:
     st.subheader("Input Features")
 
+    # numeric inputs
     bill_length_mm = st.slider(
         "Bill length (mm)",
         float(df.bill_length_mm.min()),
@@ -231,6 +271,10 @@ with tab_pred:
         int(df.body_mass_g.mean()),
     )
 
+    # categorical inputs
+    island = st.selectbox("Island", sorted(df["island"].unique()))
+    sex = st.selectbox("Sex", sorted(df["sex"].unique()))
+
     # ---------------- DISPLAY USER INPUT ----------------
     st.subheader("Your Input")
 
@@ -244,12 +288,17 @@ with tab_pred:
         st.metric("Bill Depth (mm)", round(bill_depth_mm, 2))
         st.metric("Body Mass (g)", round(body_mass_g, 2))
 
+    st.write(f"Island: {island}")
+    st.write(f"Sex: {sex}")
+
     # Prepare input for model
     user_input = {
         "bill_length_mm": bill_length_mm,
         "bill_depth_mm": bill_depth_mm,
         "flipper_length_mm": flipper_length_mm,
         "body_mass_g": body_mass_g,
+        "island": island,
+        "sex": sex,
     }
 
     # ---------------- MODEL SELECTION ----------------
@@ -264,7 +313,6 @@ with tab_pred:
 
     # ---------------- PREDICT BUTTON ----------------
     if st.button("Predict Penguin Species"):
-
         user_df = pd.DataFrame([user_input])
         pred = selected_model.predict(user_df)[0]
         proba = selected_model.predict_proba(user_df)[0]
@@ -273,14 +321,13 @@ with tab_pred:
         st.success(f"Predicted species: {pred}")
 
         st.markdown("---")
-        st.subheader("Class Probabilities")
+        st.subheader("Class Probabilities (1 = predicted, 0 = otherwise)")
 
         # Visual class indicator: 1 = predicted class, 0 = others
         cols = st.columns(len(selected_model.classes_))
-        
+
         predicted_class = selected_model.classes_[proba.argmax()]
-        
+
         for col, cls in zip(cols, selected_model.classes_):
             value = 1 if cls == predicted_class else 0
             col.metric(label=cls, value=value)
-
