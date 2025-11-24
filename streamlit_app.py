@@ -120,26 +120,6 @@ if page == "📘 Data":
     st.subheader("Dataset Preview")
     st.dataframe(df)
 
-    st.subheader("Summary Statistics")
-    st.dataframe(df.describe())
-
-    st.subheader("Class Distributions")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.write("Species:")
-        st.bar_chart(df["species"].value_counts())
-
-    with col2:
-        st.write("Island:")
-        st.bar_chart(df["island"].value_counts())
-
-    with col3:
-        st.write("Gender:")
-        st.bar_chart(df["sex"].value_counts())
-
-
 # ---------- PAGE: VISUALIZATION ----------
 elif page == "📊 Visualization":
     st.subheader("Scatter Plot: Bill Length vs Body Mass")
@@ -176,6 +156,26 @@ elif page == "📊 Visualization":
     )
 
     st.altair_chart(chart, use_container_width=True)
+
+    st.subheader("Summary Statistics")
+    st.dataframe(df.describe())
+
+    st.subheader("Class Distributions")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.write("Species:")
+        st.bar_chart(df["species"].value_counts())
+
+    with col2:
+        st.write("Island:")
+        st.bar_chart(df["island"].value_counts())
+
+    with col3:
+        st.write("Gender:")
+        st.bar_chart(df["sex"].value_counts())
+
 
 
 # ---------- PAGE: MODELS ----------
