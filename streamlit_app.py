@@ -278,4 +278,4 @@ with tab_pred:
         # Visual probability display
         cols = st.columns(len(selected_model.classes_))
         for col, cls, p in zip(cols, selected_model.classes_, proba):
-            col.metric(label=cls, value=f"{p*100:.2f}%")
+            col.metric(label=cls, value=f"{p}")
