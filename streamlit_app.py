@@ -241,11 +241,18 @@ elif page == "🔮 Prediction":
         int(df.body_mass_g.mean()),
     )
 
-    input_df = pd.DataFrame([user_input]).T
-    input_df.columns = ["Value"]
-    
     st.subheader("Your Input")
-    st.table(input_df)
+
+    c1, c2 = st.columns(2)
+    
+    with c1:
+        st.metric("Bill Length (mm)", bill_length_mm)
+        st.metric("Flipper Length (mm)", flipper_length_mm)
+    
+    with c2:
+        st.metric("Bill Depth (mm)", bill_depth_mm)
+        st.metric("Body Mass (g)", body_mass_g)
+
 
 
     selected_model_name = st.selectbox(
