@@ -69,7 +69,19 @@ user_input = {
 
 with st.expander("Class distribution"):
     st.subheader("Class distribution")
+
+    # Species distribution
+    st.write("Species distribution:")
     st.bar_chart(df['species'].value_counts())
+
+    # Island distribution
+    st.write("Island distribution:")
+    st.bar_chart(df['island'].value_counts())
+
+    # Gender distribution
+    st.write("Gender distribution:")
+    st.bar_chart(df['sex'].value_counts())
+
 
 
 
