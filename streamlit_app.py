@@ -5,15 +5,10 @@ import altair as alt
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score
-
-
+from sklearn.metrics import accuracy_score, confusion_matrix
 
 # ---------------- PAGE CONFIG -----------------
 st.set_page_config(page_title="Penguins Classifier", page_icon="🐧", layout="wide")
-
-st.title("🐧 Penguins Classifier (KNN & Decision Tree)")
-st.write("Predict penguin species using **4 numeric features**.")
 
 
 # ---------------- LOAD DATA -----------------
@@ -23,6 +18,7 @@ def load_data():
         "https://raw.githubusercontent.com/dataprofessor/data/master/penguins_cleaned.csv"
     )
     return df
+
 
 df = load_data()
 
@@ -45,7 +41,7 @@ def train_models(df):
         X, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    # Base Models
+    # Models
     knn = KNeighborsClassifier(n_neighbors=5)
     dt = DecisionTreeClassifier(max_depth=5, random_state=42)
 
@@ -56,6 +52,7 @@ def train_models(df):
 
     metrics = []
     trained_models = {}
+    preds_dict = {}
 
     for name, model in models.items():
         model.fit(X_train, y_train)
@@ -64,28 +61,37 @@ def train_models(df):
 
         metrics.append({"Model": name, "Accuracy": acc})
         trained_models[name] = model
+        preds_dict[name] = y_pred
 
     metrics_df = pd.DataFrame(metrics).sort_values(
         by="Accuracy", ascending=False
     ).reset_index(drop=True)
 
     best_model_name = metrics_df.iloc[0]["Model"]
+    class_names = sorted(y.unique())
 
-    return trained_models, metrics_df, best_model_name
-
-
-models, metrics_df, best_model_name = train_models(df)
+    return trained_models, metrics_df, best_model_name, y_test, preds_dict, class_names
 
 
+models, metrics_df, best_model_name, y_test, preds_dict, class_names = train_models(df)
 
-# ---------------- TABS -----------------
-tab_data, tab_viz, tab_model, tab_pred = st.tabs(
-    ["📘 Data", "📊 Visualization", "🤖 Models", "🔮 Prediction"]
+
+# ---------------- SIDEBAR NAVIGATION -----------------
+st.sidebar.title("🐧 Penguins Classifier")
+st.sidebar.write("Predict penguin species using 4 numeric features.")
+
+page = st.sidebar.radio(
+    "Navigation",
+    ["📘 Data", "📊 Visualization", "🤖 Models", "🔮 Prediction"],
 )
 
 
-# ---------------- TAB 1: DATA -----------------
-with tab_data:
+# ---------------- MAIN AREA -----------------
+st.title(page)  # show current page title on top
+
+
+# ---------- PAGE: DATA ----------
+if page == "📘 Data":
     st.subheader("Dataset Preview")
     st.dataframe(df)
 
@@ -109,8 +115,8 @@ with tab_data:
         st.bar_chart(df["sex"].value_counts())
 
 
-# ---------------- TAB 2: VISUALIZATION -----------------
-with tab_viz:
+# ---------- PAGE: VISUALIZATION ----------
+elif page == "📊 Visualization":
     st.subheader("Scatter Plot: Bill Length vs Body Mass")
 
     st.scatter_chart(
@@ -147,8 +153,8 @@ with tab_viz:
     st.altair_chart(chart, use_container_width=True)
 
 
-# ---------------- TAB 3: MODEL PERFORMANCE -----------------
-with tab_model:
+# ---------- PAGE: MODELS ----------
+elif page == "🤖 Models":
     st.subheader("Model Accuracy")
     st.dataframe(metrics_df.style.format({"Accuracy": "{:.3f}"}))
 
@@ -157,9 +163,29 @@ with tab_model:
         f"Best model: {best_row['Model']} (Accuracy = {best_row['Accuracy']:.3f})"
     )
 
+    st.subheader("Confusion Matrix")
 
-# ---------------- TAB 4: PREDICTION -----------------
-with tab_pred:
+    cm_model_name = st.selectbox(
+        "Choose model for confusion matrix",
+        list(models.keys()),
+        index=list(models.keys()).index(best_model_name),
+    )
+
+    y_pred_cm = preds_dict[cm_model_name]
+    cm = confusion_matrix(y_test, y_pred_cm, labels=class_names)
+
+    cm_df = pd.DataFrame(
+        cm,
+        index=[f"True: {c}" for c in class_names],
+        columns=[f"Pred: {c}" for c in class_names],
+    )
+
+    st.write(f"Confusion matrix for **{cm_model_name}**:")
+    st.dataframe(cm_df)
+
+
+# ---------- PAGE: PREDICTION ----------
+elif page == "🔮 Prediction":
     st.subheader("Input Features")
 
     bill_length_mm = st.slider(
