@@ -231,7 +231,7 @@ with tab_pred:
         int(df.body_mass_g.mean()),
     )
 
-    # Input display
+    # ---------------- DISPLAY USER INPUT ----------------
     st.subheader("Your Input")
 
     c1, c2 = st.columns(2)
@@ -244,7 +244,7 @@ with tab_pred:
         st.metric("Bill Depth (mm)", round(bill_depth_mm, 2))
         st.metric("Body Mass (g)", round(body_mass_g, 2))
 
-
+    # Prepare input for model
     user_input = {
         "bill_length_mm": bill_length_mm,
         "bill_depth_mm": bill_depth_mm,
@@ -252,35 +252,30 @@ with tab_pred:
         "body_mass_g": body_mass_g,
     }
 
-    # Model selection
-selected_model_name = st.selectbox(
-    "Choose a model",
-    list(models.keys()),
-    index=list(models.keys()).index(best_model_name),
-)
-
-selected_model = models[selected_model_name]
-
-if st.button("Predict Penguin Species"):
-    user_df = pd.DataFrame([user_input])
-    pred = selected_model.predict(user_df)[0]
-    proba = selected_model.predict_proba(user_df)[0]
-
-    # Main prediction
-    st.success(f"Predicted species: {pred}")
-
-    # Optional: tabular view
-    proba_df = pd.DataFrame(
-        {"species": selected_model.classes_, "probability": proba}
+    # ---------------- MODEL SELECTION ----------------
+    st.subheader("Choose a Model")
+    selected_model_name = st.selectbox(
+        "",
+        list(models.keys()),
+        index=list(models.keys()).index(best_model_name),
     )
 
-    st.markdown("---")
-    st.subheader("Class Probabilities (Visualization)")
+    selected_model = models[selected_model_name]
 
-    # Nice metric-style display
-    cols = st.columns(len(selected_model.classes_))
-    for col, cls, p in zip(cols, selected_model.classes_, proba):
-        col.metric(label=cls, value=f"{p*100:.2f}%")
+    # ---------------- PREDICT BUTTON ----------------
+    if st.button("Predict Penguin Species"):
 
-    # If you also want to show the table, uncomment:
-    # st.dataframe(proba_df.style.format({"probability": "{:.2f}"}))
+        user_df = pd.DataFrame([user_input])
+        pred = selected_model.predict(user_df)[0]
+        proba = selected_model.predict_proba(user_df)[0]
+
+        # Main prediction
+        st.success(f"Predicted species: {pred}")
+
+        st.markdown("---")
+        st.subheader("Class Probabilities (Visualization)")
+
+        # Visual probability display
+        cols = st.columns(len(selected_model.classes_))
+        for col, cls, p in zip(cols, selected_model.classes_, proba):
+            col.metric(label=cls, value=f"{p*100:.2f}%")
