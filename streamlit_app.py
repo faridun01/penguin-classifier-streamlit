@@ -260,23 +260,7 @@ elif page == "🔮 Prediction":
         "body_mass_g": body_mass_g,
     }
 
-    # Extra: bar chart visualization of input
-    input_vis_df = pd.DataFrame({
-        "Feature": list(user_input.keys()),
-        "Value": list(user_input.values())
-    })
-
-    st.subheader("Your Input (Visualized)")
-    input_chart = (
-        alt.Chart(input_vis_df)
-        .mark_bar()
-        .encode(
-            x="Feature",
-            y="Value",
-            tooltip=["Feature", "Value"],
-        )
-    )
-    st.altair_chart(input_chart, use_container_width=True)
+    
 
     # Model selection
     selected_model_name = st.selectbox(
