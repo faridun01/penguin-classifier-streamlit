@@ -169,62 +169,59 @@ with tab_viz:
     
     col1, col2, col3 = st.columns(3)
     
-   # ----------------------------------------------------
-st.markdown("### Class Distributions")
-# ----------------------------------------------------
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.write("Species Distribution:")
-
-    species_df = df['species'].value_counts().reset_index()
-    species_df.columns = ['species', 'count']
-
-    species_chart = (
-        alt.Chart(species_df)
-        .mark_bar()
-        .encode(
-            x=alt.X('species:N', title="Species"),
-            y=alt.Y('count:Q', title="Count"),
-            color=alt.Color('species:N', title="Species")  # built-in categorical colors
+    # --- Species ---
+    with col1:
+        st.write("Species Distribution:")
+    
+        species_df = df['species'].value_counts().reset_index()
+        species_df.columns = ['species', 'count']
+    
+        species_chart = (
+            alt.Chart(species_df)
+            .mark_bar()
+            .encode(
+                x=alt.X('species:N', title="Species"),
+                y=alt.Y('count:Q', title="Count"),
+                color='species:N'  # Altair automatically assigns different colors
+            )
         )
-    )
-    st.altair_chart(species_chart, use_container_width=True)
-
-with col2:
-    st.write("Island Distribution:")
-
-    island_df = df['island'].value_counts().reset_index()
-    island_df.columns = ['island', 'count']
-
-    island_chart = (
-        alt.Chart(island_df)
-        .mark_bar()
-        .encode(
-            x=alt.X('island:N', title="Island"),
-            y=alt.Y('count:Q', title="Count"),
-            color=alt.Color('island:N', title="Island")  # built-in colors
+        st.altair_chart(species_chart, use_container_width=True)
+    
+    # --- Island ---
+    with col2:
+        st.write("Island Distribution:")
+    
+        island_df = df['island'].value_counts().reset_index()
+        island_df.columns = ['island', 'count']
+    
+        island_chart = (
+            alt.Chart(island_df)
+            .mark_bar()
+            .encode(
+                x=alt.X('island:N', title="Island"),
+                y=alt.Y('count:Q', title="Count"),
+                color='island:N'  # automatic unique colors
+            )
         )
-    )
-    st.altair_chart(island_chart, use_container_width=True)
-
-with col3:
-    st.write("Gender Distribution:")
-
-    gender_df = df['sex'].value_counts().reset_index()
-    gender_df.columns = ['sex', 'count']
-
-    gender_chart = (
-        alt.Chart(gender_df)
-        .mark_bar()
-        .encode(
-            x=alt.X('sex:N', title="Gender"),
-            y=alt.Y('count:Q', title="Count"),
-            color=alt.Color('sex:N', title="Gender")  # built-in colors
+        st.altair_chart(island_chart, use_container_width=True)
+    
+    # --- Gender ---
+    with col3:
+        st.write("Gender Distribution:")
+    
+        gender_df = df['sex'].value_counts().reset_index()
+        gender_df.columns = ['sex', 'count']
+    
+        gender_chart = (
+            alt.Chart(gender_df)
+            .mark_bar()
+            .encode(
+                x=alt.X('sex:N', title="Gender"),
+                y=alt.Y('count:Q', title="Count"),
+                color='sex:N'  # automatic unique colors
+            )
         )
-    )
-    st.altair_chart(gender_chart, use_container_width=True)
+        st.altair_chart(gender_chart, use_container_width=True)
 
 
 
