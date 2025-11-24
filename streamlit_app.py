@@ -14,13 +14,8 @@ from sklearn.pipeline import Pipeline
 # PAGE CONFIG
 st.set_page_config(page_title="Penguins Classifier", page_icon="🐧", layout="wide")
 
-# --- Centered Title ---
-col1, col2, col3 = st.columns([1, 3, 1])
-
-with col2:
-    st.title("🐧 Penguins Classifier")
-    st.write("Predict penguin species using numeric and categorical features.")
-
+st.title("🐧 Penguins Classifier")
+st.write("Predict penguin species using numeric and categorical features.")
 
 # LOAD DATA
 @st.cache_data
