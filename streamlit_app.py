@@ -241,15 +241,12 @@ elif page == "🔮 Prediction":
         int(df.body_mass_g.mean()),
     )
 
-    user_input = {
-        "bill_length_mm": bill_length_mm,
-        "bill_depth_mm": bill_depth_mm,
-        "flipper_length_mm": flipper_length_mm,
-        "body_mass_g": body_mass_g,
-    }
+    input_df = pd.DataFrame([user_input]).T
+    input_df.columns = ["Value"]
+    
+    st.subheader("Your Input")
+    st.table(input_df)
 
-    st.write("Your input:")
-    st.json(user_input)
 
     selected_model_name = st.selectbox(
         "Choose a model",
