@@ -270,4 +270,12 @@ with tab_pred:
 
         proba_df = pd.DataFrame([proba], columns=selected_model.classes_)
         st.write("Class probabilities:")
-        st.dataframe(proba_df)
+        st.success(f"Predicted species: {pred}")
+
+    st.markdown("---")
+    st.subheader("Class Probabilities (Visualization)")
+    
+    cols = st.columns(len(selected_model.classes_))
+    for col, cls, p in zip(cols, selected_model.classes_, proba):
+        col.metric(label=cls, value=f"{p*100:.2f}%")
+
