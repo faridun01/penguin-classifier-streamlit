@@ -7,6 +7,10 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 
+
+  st.header('Hello world:)')
+
+
 # ---------------- PAGE CONFIG -----------------
 st.set_page_config(page_title="Penguins Classifier", page_icon="🐧", layout="wide")
 
